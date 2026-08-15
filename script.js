@@ -1,6 +1,7 @@
 const navToggle = document.querySelector('.nav-toggle');
 const navigation = document.querySelector('.primary-nav');
 const header = document.querySelector('[data-header]');
+const navLinks = [...navigation.querySelectorAll('a')];
 
 function closeNavigation() {
   navToggle.setAttribute('aria-expanded', 'false');
@@ -17,14 +18,16 @@ navToggle.addEventListener('click', () => {
   document.body.classList.toggle('nav-open', !isOpen);
 });
 
-navigation.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeNavigation));
+navLinks.forEach((link) => link.addEventListener('click', closeNavigation));
 document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeNavigation(); });
 window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 20), { passive: true });
 document.querySelector('[data-year]').textContent = new Date().getFullYear();
 
-document.querySelector('[data-service-form]').addEventListener('submit', (event) => {
-  event.preventDefault();
-  const status = event.currentTarget.querySelector('.form-status');
-  status.textContent = 'Form delivery is not configured yet. Please add the business contact details and a form endpoint before launch.';
-  status.focus?.();
-});
+const sectionObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (!entry.isIntersecting) return;
+    navLinks.forEach((link) => link.classList.toggle('active', link.hash === `#${entry.target.id}`));
+  });
+}, { rootMargin: '-30% 0px -60%', threshold: 0 });
+
+document.querySelectorAll('[data-section]').forEach((section) => sectionObserver.observe(section));
